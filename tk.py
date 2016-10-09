@@ -22,13 +22,14 @@ root = tkinter.Tk()
 def get_points(array):
     root.filename =  filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("jpeg files","*.jpg"),("all files","*.*")))
     print (root.filename)
-    try:
-        file = open(root.filename)
-        for line in file:
-            array.append((int(line.strip()[0]), int(line.strip()[1])))
-    except Exception:
-        root.withdraw()
-        messagebox.showerror("Error", "Error message")
+    if len(root.filename):
+        try:
+            file = open(root.filename)
+            for line in file:
+                array.append((int(line.strip()[0]), int(line.strip()[1])))
+        except Exception:
+            root.withdraw()
+            messagebox.showerror("Error", "Error message")
 
 
 def get_filename_ro():
@@ -49,6 +50,7 @@ def callback_ro():
         messagebox.showerror("Error", "Error message")
     global ro 
     ro = (lambda w: a*w*(b-w))
+    bt_ro['text'] = "Saved"
 
 def callback_S():
     try:
@@ -59,6 +61,7 @@ def callback_S():
         messagebox.showerror("Error", "Error message")
     global S 
     S = (lambda t: a*t + b*np.sin(t))
+    bt_s['text'] = "Saved"
 
 def callback_z():
     try:
@@ -69,6 +72,7 @@ def callback_z():
         messagebox.showerror("Error", "Error message")
     global z 
     z = (lambda t: a*t + b*np.cos(t))
+    bt_z['text'] = "Saved"
 
 def callback_Bt():
     global Bt
@@ -78,6 +82,7 @@ def callback_Bt():
     except Exception:
         root.withdraw()
         messagebox.showerror("Error", "Error message")
+    b2['text'] = "Saved"
 
 def callback_Bt_int():
     global Bt
@@ -87,6 +92,7 @@ def callback_Bt_int():
     except Exception:
         root.withdraw()
         messagebox.showerror("Error", "Error message")
+    b2['text'] = "Saved"
 
 def callback_x():
     global X0
@@ -94,10 +100,11 @@ def callback_x():
     try:
         X0 = float(x_e1.get())
         Y0 = float(x_e2.get())
-        print(X0, Y0)
+        print("X0:", X0, "Y0:", Y0)
     except Exception:
         root.withdraw()
         messagebox.showerror("Error", "Error message")
+    bt_x['text'] = "Saved"
 
 def callback_x2():
     global X0
@@ -109,6 +116,7 @@ def callback_x2():
     except Exception:
         root.withdraw()
         messagebox.showerror("Error", "Error message")
+    bt_x['text'] = "Saved"
 
 def sel():
     selection = "You selected the option " + str(var.get())
@@ -118,7 +126,6 @@ def sel():
         f = (lambda z, x, S, Bt: Bt)
     else:
         f = (lambda z, x, S, Bt: Bt*(x-z))
-        print("hey")
 
 def Tabulate(f):
     print("Tabulate")
@@ -282,7 +289,7 @@ ro_points = []
 s_points = []
 z_points = []
 
-result = messagebox.askyesno("choose mode","Hand mode?")
+result = messagebox.askyesno("choose mode","Manual mode?")
 
 Label(root, text="function ro(w): a*w*(b-w)").grid(row=0, column=0, columnspan=2, sticky=W+E+N+S, padx=5, pady=5)
 Label(root, text="a").grid(row=1, column=0)
@@ -291,8 +298,8 @@ e1 = Entry(root)
 e2 = Entry(root)
 e1.grid(row=2, column=0)
 e2.grid(row=2, column=1)
-b = Button(root, text="OK", command=callback_ro, height=1, width=10)
-b.grid(row=2, column=2)
+bt_ro = Button(root, text="OK", command=callback_ro, height=1, width=10)
+bt_ro.grid(row=2, column=2)
 
 tx= Text(font=('times',12), wrap=WORD, width=15, height=2)
 bt = Button(tx,text='Choose file', font=('times',12), width=15, height=2, command=get_filename_ro)
@@ -306,8 +313,8 @@ e11 = Entry(root)
 e22 = Entry(root)
 e11.grid(row=6, column=0)
 e22.grid(row=6, column=1)
-b2 = Button(root, text="OK", command=callback_S, height=1, width=10)
-b2.grid(row=6, column=2)
+bt_s = Button(root, text="OK", command=callback_S, height=1, width=10)
+bt_s.grid(row=6, column=2)
 
 tx2= Text(font=('times',12), wrap=WORD, width=15, height=2)
 bt2 = Button(tx2,text='Choose file', font=('times',12), width=15, height=2, command=get_filename_s)
@@ -324,6 +331,7 @@ R2.grid(row=8, column=1)
 label_sel = Label(root)
 label_sel.grid(row=8, column=2)
 if result:
+    root.wm_title("Manual mode")
     Label(root, text="Value of Bt").grid(row=9, column=0, columnspan=2, sticky=W+E+N+S, padx=5, pady=5)
     bt_en = Entry(root)
     bt_en.grid(row=10, column=0)
@@ -339,6 +347,7 @@ if result:
     bt_x.grid(row=15, column=2)
     
 else:
+    root.wm_title("Auto mode")
     Label(root, text="Interval for Bt").grid(row=9, column=0, columnspan=2, sticky=W+E+N+S, padx=5, pady=5)
     bt_en1 = Entry(root)
     bt_en1.grid(row=10, column=0)
