@@ -30,6 +30,7 @@ def get_points(array):
         except Exception:
             root.withdraw()
             messagebox.showerror("Error", "Error message")
+            root.destroy()
 
 
 def get_filename_ro():
@@ -48,6 +49,7 @@ def callback_ro():
     except Exception:
         root.withdraw()
         messagebox.showerror("Error", "Error message")
+        root.destroy()
     global ro 
     ro = (lambda w: a*w*(b-w))
     bt_ro['text'] = "Saved"
@@ -59,6 +61,7 @@ def callback_S():
     except Exception:
         root.withdraw()
         messagebox.showerror("Error", "Error message")
+        root.destroy()
     global S 
     S = (lambda t: a*t + b*np.sin(t))
     bt_s['text'] = "Saved"
@@ -70,6 +73,7 @@ def callback_z():
     except Exception:
         root.withdraw()
         messagebox.showerror("Error", "Error message")
+        root.destroy()
     global z 
     z = (lambda t: a*t + b*np.cos(t))
     bt_z['text'] = "Saved"
@@ -82,6 +86,7 @@ def callback_Bt():
     except Exception:
         root.withdraw()
         messagebox.showerror("Error", "Error message")
+        root.destroy()
     b2['text'] = "Saved"
 
 def callback_Bt_int():
@@ -92,6 +97,7 @@ def callback_Bt_int():
     except Exception:
         root.withdraw()
         messagebox.showerror("Error", "Error message")
+        root.destroy()
     b2['text'] = "Saved"
 
 def callback_x():
@@ -104,6 +110,7 @@ def callback_x():
     except Exception:
         root.withdraw()
         messagebox.showerror("Error", "Error message")
+        root.destroy()
     bt_x['text'] = "Saved"
 
 def callback_x2():
@@ -116,6 +123,7 @@ def callback_x2():
     except Exception:
         root.withdraw()
         messagebox.showerror("Error", "Error message")
+        root.destroy()
     bt_x['text'] = "Saved"
 
 def sel():
@@ -127,11 +135,18 @@ def sel():
     else:
         f = (lambda z, x, S, Bt: Bt*(x-z))
 
-def Tabulate(f):
+def write_to_file(array, path):
+    f = open(path, 'w')
+    for pair in array:
+        f.write(str(pair[0])+" "+ str(pair[1]) + '\n')
+
+def Tabulate(f, path = ""):
     print("Tabulate")
     array = []
     for i in range(1000):
         array.append((i, f(i)))
+    if len(path):
+        write_to_file(array, path)
     return array
 
 def Integrate(f, a, b):
@@ -183,100 +198,163 @@ def BetaSearch(Bt, diff_z, U_y_interp, f, X0, Y0_1, s_interp, ro_interp):
             if 10*C_1 + C_2 < 10*C_1_prev + C_2_prev:
                 X, Y, C_1, C_2, B_min = X_prev, Y_prev, C_1_prev, C_2_prev, B
         return B_min
-
-def Draw_hand_mode(X, Y, S):
-    wdw1 = Toplevel()
-    wdw1.geometry('700x700')
-    f = Figure(figsize=(10, 10), dpi=100)
-    a = f.add_subplot(111)
-    t = arange(1000)
-    c = arange(1000)
-    a.plot(t, c**3, 'r', label = r'$x(t)$')
-    a0 = f.add_subplot(111)
-    a0.plot(t, t**2, 'b', label = r'$S(t)$')
-    a.set_title('dynamics')
-    a.set_xlabel('t')
-    a.set_ylabel('X(t), S(t)')
-    a.legend(loc = 0, fontsize = 18)
-    canvas = FigureCanvasTkAgg(f, master=wdw1)
-    canvas.show()
-    canvas.get_tk_widget().pack()
-
-    wdw2 = Toplevel()
-    wdw2.geometry('700x700')
-    f2 = Figure(figsize=(10, 10), dpi=100)
-    a2 = f2.add_subplot(111)
-    a2.plot(t, t**2, 'b', label = r'$y(t)$')
-    a2.set_title('dynamics')
-    a2.set_xlabel('t')
-    a2.set_ylabel('Y(y)')
-    a2.legend(loc = 0, fontsize = 18)
-    canvas2 = FigureCanvasTkAgg(f2, master=wdw2)
-    canvas2.show()
-    canvas2.get_tk_widget().pack()
-
-def Draw_auto_mode(X, Y, S):
+def draw_ro(Ro):
     wdw1 = Toplevel()
     wdw1.geometry('700x700')
     f = Figure(figsize=(10, 10), dpi=100)
     a = f.add_axes([0.1, 0.1, 0.8, 0.8])
     t = arange(1000)
-    a.plot(t, t**2, 'b', label = r'$10*C_1+C_2$')
+    a.plot(t, t**2, 'b', label = r'$ro(w)$')
     a.set_title('dynamics')
-    a.set_xlabel('Beta')
-    a.set_ylabel('F=10*C_1+C_2')
+    a.set_xlabel('w')
+    a.set_ylabel('ro')
     a.legend(loc = 0, fontsize = 18)
     canvas = FigureCanvasTkAgg(f, master=wdw1)
     canvas.show()
     canvas.get_tk_widget().pack()
 
+def draw_x_S(X, S):
     wdw2 = Toplevel()
     wdw2.geometry('700x700')
     f2 = Figure(figsize=(10, 10), dpi=100)
-    a2 = f2.add_subplot(111)
-    a2.plot(t, t**2, 'b', label = r'$y(t)$')
-    a2.set_title('dynamics')
-    a2.set_xlabel('t')
-    a2.set_ylabel('Y(y)')
-    a2.legend(loc = 0, fontsize = 18)
-    canvas2 = FigureCanvasTkAgg(f2, master=wdw2)
-    canvas2.show()
-    canvas2.get_tk_widget().pack()
+    a = f2.add_axes([0.1, 0.1, 0.8, 0.8])
+    t = arange(1000)
+    a.plot(t, t**2, 'b', label = r'$x(t)$')
+    a.plot(t, t, 'r', label = r'$S(t)$')
+    a.set_title('dynamics')
+    a.set_xlabel('t')
+    a.set_ylabel('S(t), x(t)')
+    a.legend(loc = 0, fontsize = 18)
+    canvas = FigureCanvasTkAgg(f2, master=wdw2)
+    canvas.show()
+    canvas.get_tk_widget().pack()
 
+def draw_y(Y):
     wdw3 = Toplevel()
     wdw3.geometry('700x700')
     f3 = Figure(figsize=(10, 10), dpi=100)
-    a3 = f3.add_subplot(111)
-    a3.plot(t, t**2, 'b', label = r'$S(t) - x(t)$')
-    a3.set_title('dynamics')
-    a3.set_xlabel('t')
-    a3.set_ylabel('S(t) - x(t)')
-    a3.legend(loc = 0, fontsize = 18)
-    canvas3 = FigureCanvasTkAgg(f3, master=wdw3)
-    canvas3.show()
-    canvas3.get_tk_widget().pack()
+    a = f3.add_axes([0.1, 0.1, 0.8, 0.8])
+    t = arange(1000)
+    a.plot(t, t**2, 'b', label = r'$y(t)$')
+    a.set_title('dynamics')
+    a.set_xlabel('t')
+    a.set_ylabel('y(t)')
+    a.legend(loc = 0, fontsize = 18)
+    canvas = FigureCanvasTkAgg(f3, master=wdw3)
+    canvas.show()
+    canvas.get_tk_widget().pack()
+
+def draw_z(Y):
+    wdw4 = Toplevel()
+    wdw4.geometry('700x700')
+    f4 = Figure(figsize=(10, 10), dpi=100)
+    a = f4.add_axes([0.1, 0.1, 0.8, 0.8])
+    t = arange(1000)
+    a.plot(t, t**2, 'b', label = r'$z(t)$')
+    a.set_title('dynamics')
+    a.set_xlabel('t')
+    a.set_ylabel('z(t)')
+    a.legend(loc = 0, fontsize = 18)
+    canvas = FigureCanvasTkAgg(f4, master=wdw4)
+    canvas.show()
+    canvas.get_tk_widget().pack()
+
+def draw_xS(X, S):
+    wdw5 = Toplevel()
+    wdw5.geometry('700x700')
+    f5 = Figure(figsize=(10, 10), dpi=100)
+    a = f5.add_axes([0.1, 0.1, 0.8, 0.8])
+    t = arange(1000)
+    a.plot(t, t**2, 'b', label = r'$S-x$')
+    a.set_title('dynamics')
+    a.set_xlabel('t')
+    a.set_ylabel('S(t), x(t)')
+    a.legend(loc = 0, fontsize = 18)
+    canvas = FigureCanvasTkAgg(f5, master=wdw5)
+    canvas.show()
+    canvas.get_tk_widget().pack()
+
+def draw_Sx(X, S):
+    wdw6 = Toplevel()
+    wdw6.geometry('700x700')
+    f6 = Figure(figsize=(10, 10), dpi=100)
+    a = f6.add_axes([0.1, 0.1, 0.8, 0.8])
+    t = arange(1000)
+    a.plot(t, t**2, 'b', label = r'$S(x)$')
+    a.set_title('dynamics')
+    a.set_xlabel('x')
+    a.set_ylabel('S(x)')
+    a.legend(loc = 0, fontsize = 18)
+    canvas = FigureCanvasTkAgg(f6, master=wdw6)
+    canvas.show()
+    canvas.get_tk_widget().pack()
+
+def draw_F(C_1, C_2):
+    wdw7 = Toplevel()
+    wdw7.geometry('700x700')
+    f7 = Figure(figsize=(10, 10), dpi=100)
+    a = f7.add_axes([0.1, 0.1, 0.8, 0.8])
+    t = arange(1000)
+    a.plot(t, t**2, 'b', label = r'$C_2$')
+    a.plot(t, t, 'y', label = r'$C_1$')
+    a.set_title('dynamics')
+    a.set_xlabel('x')
+    a.set_ylabel('S(x)')
+    a.legend(loc = 0, fontsize = 18)
+    canvas = FigureCanvasTkAgg(f7, master=wdw7)
+    canvas.show()
+    canvas.get_tk_widget().pack()
+
+def Draw_hand_mode(Ro, X, Y, S, Z):
+    draw_ro(Ro)
+    draw_x_S(X, S)
+    draw_y(Y)
+    draw_z(Z)
+    draw_xS(X, S)
+    draw_Sx(X, S)
+
+
+def Draw_auto_mode(Ro, X, Y, S, Z, C_1, C_2):
+    draw_ro(Ro)
+    draw_x_S(X, S)
+    draw_y(Y)
+    draw_z(Z)
+    draw_xS(X, S)
+    draw_Sx(X, S)
+    draw_F(C_1, C_2)
 
 
 def Solver():
-    print("Solver")
-    ro_points = Tabulate(ro)
-    s_points = Tabulate(S)
-    z_points = Tabulate(z)
-    U_y_points = TabulateIntegral(ro)
-    ro_interp = Interp(ro_points)
-    s_interp = Interp(s_points)
-    z_interp = Interp(z_points)
-    U_y_interp = Interp(U_y_points)
-    diff_z = Diff(z_interp)
-    if result:
-        X, Y = DiffEq(diff_z, U_y_interp, f, Bt, X0, Y0)
-        C_1, C_2 = functionFBeta(X, s_interp, X0, ro_interp)
-        Draw_hand_mode(X, Y, s_interp)
-    else:
-        #global X0
-        B = BetaSearch(Bt, diff_z, U_y_interp, f, X0, Y0[0], s_interp, ro_interp)
-        X, Y = DiffEq(diff_z, U_y_interp, f, B, X0, Y0[0])
-        Draw_auto_mode(X, Y, s_interp)
+    try:
+        print(Bt)
+        print(ro)
+        print(S)
+        print(f)
+        print(z)
+        print(X0, Y0)
+        print("Solver")
+        ro_points = Tabulate(ro, "/home/asya/hell/ro.txt")
+        s_points = Tabulate(S, "/home/asya/hell/S.txt")
+        z_points = Tabulate(z, "/home/asya/hell/z.txt")
+        U_y_points = TabulateIntegral(ro)
+        ro_interp = Interp(ro_points)
+        s_interp = Interp(s_points)
+        z_interp = Interp(z_points)
+        U_y_interp = Interp(U_y_points)
+        diff_z = Diff(z_interp)
+        if result:
+            X, Y = DiffEq(diff_z, U_y_interp, f, Bt, X0, Y0)
+            C_1, C_2 = functionFBeta(X, s_interp, X0, ro_interp)
+            Draw_hand_mode(ro_interp, X, Y, s_interp, z_interp)
+        else:
+            B = BetaSearch(Bt, diff_z, U_y_interp, f, X0, Y0[0], s_interp, ro_interp)
+            X, Y = DiffEq(diff_z, U_y_interp, f, B, X0, Y0[0])
+            C_1, C_2 = functionFBeta(X, s_interp, X0, ro_interp)
+            Draw_auto_mode(ro_interp, X, Y, s_interp, z_interp, C_1, C_2)
+    except Exception:
+        root.withdraw()
+        messagebox.showerror("Error", "Error message")
+        root.destroy()
 
 global Bt
 global ro
