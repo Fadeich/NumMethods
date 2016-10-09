@@ -197,7 +197,7 @@ def Draw_hand_mode(X, Y, S):
 
     wdw2 = Toplevel()
     wdw2.geometry('700x700')
-    f2 = Figure(figsize=(10, 10) dpi=100)
+    f2 = Figure(figsize=(10, 10), dpi=100)
     a2 = f2.add_subplot(111)
     a2.plot(t, t**2, 'b', label = r'$y(t)$')
     a2.set_title('dynamics')
