@@ -11,7 +11,10 @@ from numpy import arange, sin, pi
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 # implement the default mpl key bindings
 from matplotlib.backend_bases import key_press_handler
-
+import numpy as np
+import math
+import pylab
+from scipy import optimize
 
 from matplotlib.figure import Figure
 root = tkinter.Tk()
@@ -24,13 +27,15 @@ def get_points(array):
     print (root.filename)
     if len(root.filename):
         try:
-            file = open(root.filename)
-            for line in file:
-                array.append((int(line.strip()[0]), int(line.strip()[1])))
+            f = open(root.filename)
+            for line in f:
+                print(line)
+                array.append((int(line.split()[0]), int(line.split()[1])))
         except Exception:
-            root.withdraw()
-            messagebox.showerror("Error", "Error message")
-            root.destroy()
+            #root.withdraw()
+            #messagebox.showerror("Error", "Error message")
+            #root.destroy()
+            messagebox.showinfo("Error", "Error")
 
 
 def get_filename_ro():
@@ -46,59 +51,69 @@ def callback_ro():
     try:
         a = float(e1.get())
         b = float(e2.get())
+        global ro 
+        ro = (lambda w: a*w*(b-w))
+        bt_ro['text'] = "Saved"
     except Exception:
-        root.withdraw()
-        messagebox.showerror("Error", "Error message")
-        root.destroy()
-    global ro 
-    ro = (lambda w: a*w*(b-w))
-    bt_ro['text'] = "Saved"
+        #root.withdraw()
+        #messagebox.showerror("Error", "Error message")
+        #root.destroy()
+        messagebox.showinfo("Error", "Error")
+    
 
 def callback_S():
     try:
        a = float(e11.get())
        b = float(e22.get())
+       global S 
+       S = (lambda t: a*t + b*np.sin(t))
+       bt_s['text'] = "Saved"
     except Exception:
-        root.withdraw()
-        messagebox.showerror("Error", "Error message")
-        root.destroy()
-    global S 
-    S = (lambda t: a*t + b*np.sin(t))
-    bt_s['text'] = "Saved"
+        #root.withdraw()
+        #messagebox.showerror("Error", "Error message")
+        #root.destroy
+        messagebox.showinfo("Error", "Error")
 
 def callback_z():
     try:
        a = float(z_e1.get())
        b = float(z_e2.get())
+       global z
+       z = (lambda t: a*t + b*np.cos(t))
+       bt_z['text'] = "Saved"
     except Exception:
-        root.withdraw()
-        messagebox.showerror("Error", "Error message")
-        root.destroy()
-    global z 
-    z = (lambda t: a*t + b*np.cos(t))
-    bt_z['text'] = "Saved"
+        #root.withdraw()
+        #messagebox.showerror("Error", "Error message")
+        #root.destroy()
+        messagebox.showinfo("Error", "Error")
+    
+    
 
 def callback_Bt():
     global Bt
     try:
         Bt = float(bt_en.get())
         print(Bt)
+        b2['text'] = "Saved"
     except Exception:
-        root.withdraw()
-        messagebox.showerror("Error", "Error message")
-        root.destroy()
-    b2['text'] = "Saved"
+        #root.withdraw()
+        #messagebox.showerror("Error", "Error message")
+        #root.destroy()
+        messagebox.showinfo("Error", "Error")
+    
 
 def callback_Bt_int():
     global Bt
     try:
         Bt = [min(float(bt_en1.get()), float(bt_en2.get())), max(float(bt_en1.get()), float(bt_en2.get()))]
         print(Bt)
+        b2['text'] = "Saved"
     except Exception:
-        root.withdraw()
-        messagebox.showerror("Error", "Error message")
-        root.destroy()
-    b2['text'] = "Saved"
+        #root.withdraw()
+        #messagebox.showerror("Error", "Error message")
+        #root.destroy()
+        messagebox.showinfo("Error", "Error")
+    
 
 def callback_x():
     global X0
@@ -107,11 +122,13 @@ def callback_x():
         X0 = float(x_e1.get())
         Y0 = float(x_e2.get())
         print("X0:", X0, "Y0:", Y0)
+        bt_x['text'] = "Saved"
     except Exception:
-        root.withdraw()
-        messagebox.showerror("Error", "Error message")
-        root.destroy()
-    bt_x['text'] = "Saved"
+        #root.withdraw()
+        #messagebox.showerror("Error", "Error message")
+        #root.destroy()
+        messagebox.showinfo("Error", "Error")
+    
 
 def callback_x2():
     global X0
@@ -120,11 +137,13 @@ def callback_x2():
         X0 = S(0)
         Y0 = [float(x_e1.get()), float(x_e2.get())]
         print(X0, Y0)
+        bt_x['text'] = "Saved"
     except Exception:
-        root.withdraw()
-        messagebox.showerror("Error", "Error message")
-        root.destroy()
-    bt_x['text'] = "Saved"
+        #root.withdraw()
+        #messagebox.showerror("Error", "Error message")
+        #root.destroy()
+        messagebox.showinfo("Error", "Error")
+    
 
 def sel():
     selection = "You selected the option " + str(var.get())
@@ -140,6 +159,11 @@ def write_to_file(array, path):
     for pair in array:
         f.write(str(pair[0])+" "+ str(pair[1]) + '\n')
 
+def write_to_file2(array, path):
+    f = open(path, 'w')
+    for a in array:
+        f.write(str(a)+" ")
+
 def Tabulate(f, path = ""):
     print("Tabulate")
     array = []
@@ -149,42 +173,76 @@ def Tabulate(f, path = ""):
         write_to_file(array, path)
     return array
 
-def Integrate(f, a, b):
+def Integrate(x, f, a, b):
     print("Integrate")
-    return (lambda t: 3*t**2 - 2*t**3 -1)
+    x = x[a <= x]
+    print("hey")
+    x = x[x <= b]
+    print("hey2")
+    sum_int = f[0]+f[-1]+2*sum(f[1:-1])
+    print("hey3")
+    return float(sum_int*(x[1]-x[0])/2)
 
-def TabulateIntegral(f):
+#def Integrate(f, a, b):
+#    print("Integrate")
+#    return (lambda t: 3*t**2 - 2*t**3 -1)
+
+def TabulateIntegral(f, path = ""):
     print("TabulateIntegral")
-    y = 0
-    U_y = Integrate(f, 1, y)
-    return Tabulate(U_y)
+    #x = np.linspace(0, 1, 10)
+    #y = np.array([i**2 for i in x])
+    ro_w_x = np.linspace(1, 2, 10)
+    ro_w_y = np.array([i**2 for i in ro_w_x])
+    U_y = Integrate(ro_w_x, ro_w_y, 1, 2)
+    #U_y = []
+    #for y in range(1, 10):
+    #    U_y.append(Integrate(x, f, 0, y))
+    return U_y
 
 def LinSys(A, b):
     print("LinSys")
     return np.random.randint(4)
 
-def Interp(points):
+def Interp(points, path = ""):
     print("Interp")
     A = np.random.randint(10, size=(4, 4))
     b = np.random.randint(4)
     x = LinSys(A, b)
+    
     return (lambda t: 3*t**2)
 
 def Diff(f):
     print("Diff")
     return (lambda t: 6*t)
 
-def DiffEq(diff_z, U_y_interp, f, Bt, X0, Y0):
+def DiffEq(diff_z, U_y_interp, f, Bt, X0, Y0, t1, t2):
     print("DiffEq")
     A = np.random.randint(10, size=(4, 4))
     b = np.random.randint(4)
     x = LinSys(A, b)
-    array = []
-    return array, array
+    array_x = []
+    array_y = []
+    f_prev1 = 0
+    f_prev2 = 0
+    x_prev = X0
+    y_prev = Y0
+    for i in range(t1, t2):
+        x_prev = f_prev1 + x_prev
+        array_x.append(x_prev)
+        y_prev = f_prev2 + y_prev
+        array_y.append(y_prev)
+    print(array_x, array_y)
+    write_to_file2(array_x, "/home/asya/hell/x.txt")
+    write_to_file2(array_y, "/home/asya/hell/y.txt")
+    return array_x, array_y
 
 def functionFBeta(X, s_interp, X_0, ro_interp):
     print("functionFBeta")
-    Integrate(ro_interp, 1, 2)
+    ro_w_x = np.linspace(1, 2, 10)
+    ro_w_y = np.array([i**2 for i in ro_w_x])
+    U_y = Integrate(ro_w_x, ro_w_y, 1, 2)
+    #Integrate(ro_interp, 1, 2)
+   
     return 0.9, 0.5
 
 def BetaSearch(Bt, diff_z, U_y_interp, f, X0, Y0_1, s_interp, ro_interp):
@@ -198,6 +256,7 @@ def BetaSearch(Bt, diff_z, U_y_interp, f, X0, Y0_1, s_interp, ro_interp):
             if 10*C_1 + C_2 < 10*C_1_prev + C_2_prev:
                 X, Y, C_1, C_2, B_min = X_prev, Y_prev, C_1_prev, C_2_prev, B
         return B_min
+
 def draw_ro(Ro):
     wdw1 = Toplevel()
     wdw1.geometry('700x700')
@@ -336,25 +395,26 @@ def Solver():
         ro_points = Tabulate(ro, "/home/asya/hell/ro.txt")
         s_points = Tabulate(S, "/home/asya/hell/S.txt")
         z_points = Tabulate(z, "/home/asya/hell/z.txt")
-        U_y_points = TabulateIntegral(ro)
+        U_y_points = TabulateIntegral(ro, "/home/asya/hell/U_y.txt")
         ro_interp = Interp(ro_points)
         s_interp = Interp(s_points)
         z_interp = Interp(z_points)
         U_y_interp = Interp(U_y_points)
         diff_z = Diff(z_interp)
         if result:
-            X, Y = DiffEq(diff_z, U_y_interp, f, Bt, X0, Y0)
+            X, Y = DiffEq(diff_z, U_y_interp, f, Bt, X0, Y0, 0, 10) #t1 t2
             C_1, C_2 = functionFBeta(X, s_interp, X0, ro_interp)
             Draw_hand_mode(ro_interp, X, Y, s_interp, z_interp)
         else:
             B = BetaSearch(Bt, diff_z, U_y_interp, f, X0, Y0[0], s_interp, ro_interp)
-            X, Y = DiffEq(diff_z, U_y_interp, f, B, X0, Y0[0])
+            X, Y = DiffEq(diff_z, U_y_interp, f, B, X0, Y0[0], 0, 10)
             C_1, C_2 = functionFBeta(X, s_interp, X0, ro_interp)
             Draw_auto_mode(ro_interp, X, Y, s_interp, z_interp, C_1, C_2)
     except Exception:
-        root.withdraw()
-        messagebox.showerror("Error", "Error message")
-        root.destroy()
+        #root.withdraw()
+        #messagebox.showerror("Error", "Error message")
+        #root.destroy()
+        messagebox.showinfo("Error", "Error")
 
 global Bt
 global ro
